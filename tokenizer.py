@@ -73,6 +73,12 @@ class OperatorType(Enum):
     OPENPARENTHESIS = 18
     CLOSEPARENTHESIS = 19
 
+# create a function that return a string containing all the operator types that are a single character.
+
+def string_separators():
+    return " +-*/^><=().;[]"
+
+
 # create an dictionary of operator types that will be used to find the type of operator. One item for each operator type with a string corresponding to it
 
 operator_types = {
@@ -96,20 +102,4 @@ operator_types = {
     ")": OperatorType.CLOSEPARENTHESIS
 }
 
-
-# create an array of TokenType that will be used to find the type of token. Initialize the array with mathematical operators, parentheses, and whitespace.
-
-token_types = [
-    TokenType(TokenTypeValue.OPERATOR, "OPERATOR"),
-    TokenType(TokenTypeValue.PARENTHESIS, "PARENTHESIS"),
-    TokenType(TokenTypeValue.FUNCTION, "FUNCTION"),
-    TokenType(TokenTypeValue.VARIABLE, "VARIABLE"),
-    TokenType(TokenTypeValue.KEYWORD, "KEYWORD"),
-    TokenType(TokenTypeValue.STRING, "STRING"),
-    TokenType(TokenTypeValue.WHITESPACE, "WHITESPACE"),
-    TokenType(TokenTypeValue.COMMENT, "COMMENT"),
-    TokenType(TokenTypeValue.NEWLINE, "NEWLINE"),
-    TokenType(TokenTypeValue.EOF, "EOF"),
-    TokenType(TokenTypeValue.UNKNOWN, "UNKNOWN"),
-    TokenType(Token
 

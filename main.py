@@ -1,5 +1,5 @@
 # Create a class named CodeLine which contains a line number and a string of code.
-
+from tokenizer import string_separators
 
 class CodeLine:
     def __init__(self, line_number, code):
@@ -46,9 +46,9 @@ def split_string(string, separators):
         if char in separators:
             if word:
                 words.append(word)
-                if char != " ": # if the separator is a space, don't add it to the words list
-                    words.append(char)
-                word = ""
+                word = ""            
+            if char != " ":
+                words.append(char)
         else:
             word += char
     if word:
@@ -76,7 +76,7 @@ def loop_input():
         elif upperCode.isdigit():
             program.remove_code_line(int(upperCode))
         else:
-            words = split_string(code, " +-*/()")
+            words = split_string(code, string_separators())
             if words[0].isdigit():
                 line_number = int(words[0])
                 code = " ".join(words[1:])
