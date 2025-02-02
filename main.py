@@ -20,6 +20,15 @@ class Program:
                 return
         self.code_lines.append(code_line)
 
+    # create a method that takes a line number as parameter and removes the code line with that line number from the list of code lines. return an error if the line number does not exist.
+    def remove_code_line(self, line_number):
+        for line in self.code_lines:
+            if line.line_number == line_number:
+                self.code_lines.remove(line)
+                print(f"Line {line_number} removed")
+                return
+        print(f"Error: Line {line_number} does not exist")
+
     def print_code(self):
         # sort the list of code lines by line number
         self.code_lines.sort(key=lambda x: x.line_number)
@@ -61,9 +70,14 @@ def loop_input():
             program.print_code()
         elif upperCode == "RUN":
             print("Running the program")
+        elif upperCode == "CLEAR":
+            program.code_lines = []
+            print("Program cleared - all lines removed")
+        elif upperCode.isdigit():
+            program.remove_code_line(int(upperCode))
         else:
             words = split_string(code, " +-*/()")
-            if words[0].isnumeric():
+            if words[0].isdigit():
                 line_number = int(words[0])
                 code = " ".join(words[1:])
                 code_line = CodeLine(line_number, code)
