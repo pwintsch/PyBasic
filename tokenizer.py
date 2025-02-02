@@ -4,11 +4,15 @@
 from enum import Enum
 
 class Token:
-    def __init__(self, token_type, value):
+    def __init__(self, token_type, token_sub_type, value):
         self.token_type = token_type
+        self.token_sub_type = token_sub_type
         self.value = value
 
     def __str__(self):
+        return f"{self.value}"
+    
+    def __repr__(self):
         return f"{self.token_type}: {self.value}"
     
 
@@ -73,11 +77,18 @@ class OperatorType(Enum):
     OPENPARENTHESIS = 18
     CLOSEPARENTHESIS = 19
 
-# create a function that return a string containing all the operator types that are a single character.
+# create an enum of Commands that can be used to create tokens.
 
-def string_separators():
-    return " +-*/^><=().;[]"
+class CommandType(Enum):
+    LET = 1
+    PRINT = 2
 
+# create a dictionary of command types that will be used to find the type of command. One item for each command type with a string corresponding to it
+
+command_types = {
+    "LET": CommandType.LET,
+    "PRINT": CommandType.PRINT
+}
 
 # create an dictionary of operator types that will be used to find the type of operator. One item for each operator type with a string corresponding to it
 
@@ -86,13 +97,16 @@ operator_types = {
     "-": OperatorType.MINUS,
     "*": OperatorType.TIMES,
     "/": OperatorType.DIVIDE,
+    "=": OperatorType.EQUAL
+}
+
+unsupported_operators = {
     "^": OperatorType.EXPONENT,
     "MOD": OperatorType.MODULUS,
     ">": OperatorType.GREATER_THAN,
     "<": OperatorType.LESS_THAN,
     ">=": OperatorType.GREATER_THAN_EQUAL,
     "<=": OperatorType.LESS_THAN_EQUAL,
-    "=": OperatorType.EQUAL,
     "AND": OperatorType.AND,
     "OR": OperatorType.OR,
     "NOT": OperatorType.NOT,
@@ -102,4 +116,53 @@ operator_types = {
     ")": OperatorType.CLOSEPARENTHESIS
 }
 
+
+def words_to_tokens(words):
+    tokens = []
+    for word in words:
+        if word.isdigit():
+            tokens.append(Token(TokenTypeValue.NUMBER, None, word))
+        elif word in operator_types:
+            tokens.append(Token(TokenTypeValue.OPERATOR, operator_types[word], word))
+        elif word in command_types:
+            tokens.append(Token(TokenTypeValue.COMMAND, command_types[word], word))
+        elif is_valid_variable_name(word):
+            tokens.append(Token(TokenTypeValue.VARIABLE, None, word))
+        else:
+            print(f"Error: {word} is not a valid token")
+            tokens=[]
+            break
+    return tokens
+
+# create a function that checks if a string is a valid variable name and returns a boolean value accordingly.
+
+def is_valid_variable_name(string):
+    return string.isidentifier()
+
+
+
+# create a function that return a string containing all the operator types that are a single character.
+
+def string_separators():
+#    return " +-*/^><=().;[]"
+    return " +-*/=" # only the operators that are supported for the moment
+
+
+# Create a function that takes a string and splits it into a array of strings each time a character is a separator from an array of chars representing the seperators. The separator becomes a single element in the array of strings.
+
+def split_string(string, separators):
+    words = []
+    word = ""
+    for char in string:
+        if char in separators:
+            if word:
+                words.append(word)
+                word = ""            
+            if char != " ":
+                words.append(char)
+        else:
+            word += char
+    if word:
+        words.append(word)
+    return words
 
