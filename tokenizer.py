@@ -4,9 +4,9 @@
 from enum import Enum
 
 class Token:
-    def __init__(self, token_type, token_sub_type, value):
+    def __init__(self, token_type, token_type_id, value):
         self.token_type = token_type
-        self.token_sub_type = token_sub_type
+        self.token_type_id = token_type_id
         self.value = value
 
     def __str__(self):
@@ -17,21 +17,10 @@ class Token:
     
 
 
-# Create a class called TokenType which contains the types of tokens that can be created. each type contains a TokenTypeValue, a subTypeValue and a string representation of the token sub type.
-
-class TokenType:
-    def __init__(self, token_type_value, token_type_subtype, token_type_string):
-        self.token_type_value = token_type_value
-        self.token_type_subtype = token_type_subtype
-        self.token_type_string = token_type_string
-
-    def __str__(self):
-        return f"{self.token_type_value}: {self.token_type_string}"
-    
 
 # Create an Enum of token types that can be used to create tokens.
 
-class TokenTypeValue(Enum):
+class TokenType(Enum):
     NUMBER = 1
     OPERATOR = 2
     PARENTHESIS = 3
@@ -53,6 +42,33 @@ class TokenTypeValue(Enum):
     DEDENT = 19
     EOL = 20
     COMMAND = 21
+
+# create a dictionary of token types that will be used to give a text representation of the token type. One item for each token type with a string corresponding to it
+
+token_type_desc = {
+    TokenType.NUMBER: "NUMBER",
+    TokenType.OPERATOR: "OPERATOR",
+    TokenType.PARENTHESIS: "PARENTHESIS",
+    TokenType.FUNCTION: "FUNCTION",
+    TokenType.VARIABLE: "VARIABLE",
+    TokenType.KEYWORD: "KEYWORD",
+    TokenType.STRING: "STRING",
+    TokenType.WHITESPACE: "WHITESPACE",
+    TokenType.COMMENT: "COMMENT",
+    TokenType.NEWLINE: "NEWLINE",
+    TokenType.EOF: "EOF",
+    TokenType.UNKNOWN: "UNKNOWN",
+    TokenType.ASSIGNMENT: "ASSIGNMENT",
+    TokenType.COMMA: "COMMA",
+    TokenType.COLON: "COLON",
+    TokenType.SEMICOLON: "SEMICOLON",
+    TokenType.DOT: "DOT",
+    TokenType.INDENT: "INDENT",
+    TokenType.DEDENT: "DEDENT",
+    TokenType.EOL: "EOL",
+    TokenType.COMMAND: "COMMAND"
+}
+
 
 # create an enum of Operator types that can be used to create tokens.
 
@@ -76,6 +92,8 @@ class OperatorType(Enum):
     CLOSEBRACKET = 17
     OPENPARENTHESIS = 18
     CLOSEPARENTHESIS = 19
+
+
 
 # create an enum of Commands that can be used to create tokens.
 
@@ -116,18 +134,19 @@ unsupported_operators = {
     ")": OperatorType.CLOSEPARENTHESIS
 }
 
+# Basic lexer to transforms an array of words into basic tokens 
 
-def words_to_tokens(words):
+def lexerize(words):
     tokens = []
     for word in words:
         if word.isdigit():
-            tokens.append(Token(TokenTypeValue.NUMBER, None, word))
+            tokens.append(Token(TokenType.NUMBER, None, word))
         elif word in operator_types:
-            tokens.append(Token(TokenTypeValue.OPERATOR, operator_types[word], word))
-        elif word in command_types:
-            tokens.append(Token(TokenTypeValue.COMMAND, command_types[word], word))
+            tokens.append(Token(TokenType.OPERATOR, operator_types[word], word))
+        elif word.upper() in command_types:
+            tokens.append(Token(TokenType.COMMAND, command_types[word.upper()], word.upper()))
         elif is_valid_variable_name(word):
-            tokens.append(Token(TokenTypeValue.VARIABLE, None, word))
+            tokens.append(Token(TokenType.VARIABLE, None, word))
         else:
             print(f"Error: {word} is not a valid token")
             tokens=[]
