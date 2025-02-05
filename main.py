@@ -1,6 +1,6 @@
 # Create a class named CodeLine which contains a line number and a string of code.
 from tokenizer import split_string, string_separators, lexerize
-from parser import parse_tokens
+from parser import parse_tokens, ParseResult
 
 class Command:
     def __init__(self, line_number, tokens):
@@ -68,9 +68,12 @@ def loop_input():
                 line_number = int(words[0])
                 token_list = lexerize(words[1:])
                 if token_list:
-                    parse_tokens(token_list)
-                    code_line = Command(line_number, token_list)
-                    program.add_code_line(code_line)
+                    result=parse_tokens(token_list)
+                    if result.tree:
+                        code_line = Command(line_number, token_list)
+                        program.add_code_line(code_line)
+                    else:
+                        print("Error: Invalid syntax")
             else:
                 print("Error: Line number is missing")
 

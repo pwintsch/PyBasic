@@ -21,7 +21,8 @@ class Token:
 # Create an Enum of token types that can be used to create tokens.
 
 class TokenType(Enum):
-    NUMBER = 1
+    COMMAND = 1
+    NUMBER = 21
     OPERATOR = 2
     PARENTHESIS = 3
     FUNCTION = 4
@@ -41,7 +42,6 @@ class TokenType(Enum):
     INDENT = 18
     DEDENT = 19
     EOL = 20
-    COMMAND = 21
 
 # create a dictionary of token types that will be used to give a text representation of the token type. One item for each token type with a string corresponding to it
 
