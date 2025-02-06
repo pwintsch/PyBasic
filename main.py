@@ -54,7 +54,7 @@ def loop_input():
         if upperCode == "EXIT":
             break
         elif upperCode == "LIST":
-e            program.print_code()
+            program.print_code()
         elif upperCode == "RUN":
             print("Running the program")
         elif upperCode == "CLEAR":
