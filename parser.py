@@ -1,4 +1,4 @@
-from tokenizer import OperatorType, CommandType, TokenType
+from tokenizer import OperatorType, CommandType, TokenType, Token
 from enum import Enum
 
 grammar_book = {}
@@ -87,7 +87,12 @@ def parse_expression(tokens):
             result.append(token)
         else:
             break
-    return ParseResult(result, tokens[index:])
+    if len(result)==0:
+        return ParseResult(None, tokens)
+    else:
+        expr_token=Token(TokenType.EXPRESSION, None, "")
+        expr_token.expression=result
+    return ParseResult(expr_token, tokens[index:])
 
 
 

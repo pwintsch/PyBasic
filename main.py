@@ -54,7 +54,7 @@ def loop_input():
         if upperCode == "EXIT":
             break
         elif upperCode == "LIST":
-            program.print_code()
+e            program.print_code()
         elif upperCode == "RUN":
             print("Running the program")
         elif upperCode == "CLEAR":
@@ -70,7 +70,7 @@ def loop_input():
                 if token_list:
                     result=parse_tokens(token_list)
                     if result.tree:
-                        code_line = Command(line_number, token_list)
+                        code_line = Command(line_number, result.tree)
                         program.add_code_line(code_line)
                     else:
                         print("Error: Invalid syntax")

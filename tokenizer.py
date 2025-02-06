@@ -8,8 +8,14 @@ class Token:
         self.token_type = token_type
         self.token_type_id = token_type_id
         self.value = value
+        self.expression = None
 
     def __str__(self):
+        if self.token_type==TokenType.EXPRESSION:
+            s=""
+            for t in self.expression:
+                s+=f"{t.value}"
+            return s
         return f"{self.value}"
     
     def __repr__(self):
@@ -42,6 +48,7 @@ class TokenType(Enum):
     INDENT = 18
     DEDENT = 19
     EOL = 20
+    EXPRESSION = 22
 
 # create a dictionary of token types that will be used to give a text representation of the token type. One item for each token type with a string corresponding to it
 
