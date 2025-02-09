@@ -1,9 +1,9 @@
 # Create a class named CodeLine which contains a line number and a string of code.
 from tokenizer import split_string, string_separators, lexerize, command_types
 from parser import parse_tokens, ParseResult
-from interpreter import Interpreter
+from interpreter import Interpreter, interpreter_commands
 
-class Command:
+class Instruction:
     def __init__(self, line_number, tokens):
         self.line_number = line_number
         self.tokens = tokens
@@ -18,15 +18,15 @@ class Command:
 
 class Program:
     def __init__(self):
-        self.commands = []
+        self.instructions = []
 
     # create a method thats a CodeLine object to the list of CodeLine objects but only if the line number does not exist in the list. return an error if it does
-    def add_code_line(self, command):
-        for line in self.commands:
-            if line.line_number == command.line_number:
-                print(f"Error: Line {command.line_number} already exists")
+    def add_code_line(self, instruction):
+        for line in self.instructions:
+            if line.line_number == instruction.line_number:
+                print(f"Error: Line {instruction.line_number} already exists")
                 return
-        self.commands.append(command)
+        self.instructions.append(instruction)
 
     # create a method that takes a line number as parameter and removes the code line with that line number from the list of code lines. return an error if the line number does not exist.
     def remove_code_line(self, line_number):
@@ -39,9 +39,9 @@ class Program:
 
     def print_code(self):
         # sort the list of code lines by line number
-        self.commands.sort(key=lambda x: x.line_number)
+        self.instructions.sort(key=lambda x: x.line_number)
         # print the line number and code for each code line in the list of code lines
-        for code_line in self.commands:
+        for code_line in self.instructionsnstructions:
             print (f"{code_line}")
 
 
@@ -71,7 +71,7 @@ def loop_input():
                 if token_list:
                     result=parse_tokens(token_list)
                     if result.tree:
-                        code_line = Command(line_number, result.tree)
+                        code_line = Instruction(line_number, result.tree)
                         program.add_code_line(code_line)
                     else:
                         print("Error: Invalid syntax")
@@ -80,10 +80,12 @@ def loop_input():
                 if token_list:
                     result=parse_tokens(token_list)
                     if result.tree:
-                        print ("Executing command:", result.tree[0].value)
+#                        print ("Executing command:", result.tree[0].value)
 #                        print(result.tree)
-                        inter = Interpreter(None)
-                        print (inter.visit(result.tree[1].expression))
+#                        inter = Interpreter(None)
+#                        print (inter.visit(result.tree[1].expression))                     
+                        direct_command=interpreter_commands[result.tree[0].value](result.tree[1:])     
+                        direct_command.call()                  
                     else:
                         print("Error: Invalid syntax")
             else:

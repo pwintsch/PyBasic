@@ -38,3 +38,44 @@ class Interpreter(NodeVisitor):
     def interpret(self):
         tree = self.parser.parse()
         return self.visit(tree)
+    
+class Command(object):
+    def __init__(self,tokens):
+        self.tokens = tokens
+
+    def __str__(self):
+        return f"{self.tokens[0].value}"
+    
+    def call():
+        pass
+
+
+
+class LetCommand(Command):
+    def __init__(self,tokens):
+        super().__init__(tokens)
+
+    def __str__(self):
+        return f"LET {self.variable} = {self.expression}"
+
+    def call(self):
+        print ("Executing LET command")
+        # self.tokens[0].value = self.tokens[3].value
+
+
+class PrintCommand(Command):
+    def __init__(self,tokens):
+        super().__init__(tokens)
+        self.tokens = tokens
+
+    def __str__(self):
+        return f"PRINT {self.tokens}"
+
+    def call(self):
+        inter = Interpreter(None)
+        print (inter.visit(self.tokens[0].expression))
+
+interpreter_commands = {
+    "LET": LetCommand,
+    "PRINT": PrintCommand
+}
