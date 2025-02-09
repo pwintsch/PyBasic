@@ -9,11 +9,12 @@ class Token:
         self.token_type_id = token_type_id
         self.value = value
         self.expression = None
+        self.tokens = None
 
     def __str__(self):
         if self.token_type==TokenType.EXPRESSION:
             s=""
-            for t in self.expression:
+            for t in self.tokens:
                 s+=f"{t.value}"
             return s
         return f"{self.value}"
@@ -30,7 +31,6 @@ class TokenType(Enum):
     COMMAND = 1
     NUMBER = 21
     OPERATOR = 2
-    PARENTHESIS = 3
     FUNCTION = 4
     VARIABLE = 5
     KEYWORD = 6
@@ -49,13 +49,19 @@ class TokenType(Enum):
     DEDENT = 19
     EOL = 20
     EXPRESSION = 22
+    OPEN_PARENTHESIS = 30
+    CLOSE_PARENTHESIS = 31
+    PLUS = 32
+    MINUS = 33
+    TIMES = 34
+    DIVIDE = 35
+    EQUAL = 36
 
 # create a dictionary of token types that will be used to give a text representation of the token type. One item for each token type with a string corresponding to it
 
 token_type_desc = {
     TokenType.NUMBER: "NUMBER",
     TokenType.OPERATOR: "OPERATOR",
-    TokenType.PARENTHESIS: "PARENTHESIS",
     TokenType.FUNCTION: "FUNCTION",
     TokenType.VARIABLE: "VARIABLE",
     TokenType.KEYWORD: "KEYWORD",
@@ -73,7 +79,16 @@ token_type_desc = {
     TokenType.INDENT: "INDENT",
     TokenType.DEDENT: "DEDENT",
     TokenType.EOL: "EOL",
-    TokenType.COMMAND: "COMMAND"
+    TokenType.COMMAND: "COMMAND",
+    TokenType.EXPRESSION: "EXPRESSION",
+    TokenType.OPEN_PARENTHESIS: "OPEN_PARENTHESIS",
+    TokenType.CLOSE_PARENTHESIS: "CLOSE_PARENTHESIS",
+    TokenType.PLUS: "PLUS",
+    TokenType.MINUS: "MINUS",
+    TokenType.TIMES: "TIMES",
+    TokenType.DIVIDE: "DIVIDE",
+    TokenType.EQUAL: "EQUAL"
+
 }
 
 
@@ -107,22 +122,26 @@ class OperatorType(Enum):
 class CommandType(Enum):
     LET = 1
     PRINT = 2
+    CALC = 3
 
 # create a dictionary of command types that will be used to find the type of command. One item for each command type with a string corresponding to it
 
 command_types = {
     "LET": CommandType.LET,
-    "PRINT": CommandType.PRINT
+    "PRINT": CommandType.PRINT,
+    "CALC": CommandType.CALC
 }
 
 # create an dictionary of operator types that will be used to find the type of operator. One item for each operator type with a string corresponding to it
 
 operator_types = {
-    "+": OperatorType.PLUS,
-    "-": OperatorType.MINUS,
-    "*": OperatorType.TIMES,
-    "/": OperatorType.DIVIDE,
-    "=": OperatorType.EQUAL
+    "+": TokenType.PLUS,
+    "-": TokenType.MINUS,
+    "*": TokenType.TIMES,
+    "/": TokenType.DIVIDE,
+    "=": TokenType.EQUAL,
+    "(": TokenType.OPEN_PARENTHESIS,
+    ")": TokenType.CLOSE_PARENTHESIS
 }
 
 unsupported_operators = {
@@ -149,7 +168,7 @@ def lexerize(words):
         if word.isdigit():
             tokens.append(Token(TokenType.NUMBER, None, word))
         elif word in operator_types:
-            tokens.append(Token(TokenType.OPERATOR, operator_types[word], word))
+            tokens.append(Token(operator_types[word], None, word))
         elif word.upper() in command_types:
             tokens.append(Token(TokenType.COMMAND, command_types[word.upper()], word.upper()))
         elif is_valid_variable_name(word):
@@ -171,7 +190,7 @@ def is_valid_variable_name(string):
 
 def string_separators():
 #    return " +-*/^><=().;[]"
-    return " +-*/=" # only the operators that are supported for the moment
+    return " +-*/=()" # only the operators that are supported for the moment
 
 
 # Create a function that takes a string and splits it into a array of strings each time a character is a separator from an array of chars representing the seperators. The separator becomes a single element in the array of strings.

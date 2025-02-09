@@ -35,35 +35,115 @@ class GrammarNode:
 class grammar_rules(Enum):
     LET = 1
     PRINT = 2
+    CALC = 3
 
 
 def initialise_grammarbook ():
-    let_grammar = [GrammarNode(TokenType.COMMAND, CommandType.LET), GrammarNode(TokenType.VARIABLE, 0), GrammarNode(TokenType.OPERATOR, OperatorType.EQUAL), GrammarNode(GrammarNodeType.EXPRESSION, 0)]
+    let_grammar = [GrammarNode(TokenType.COMMAND, CommandType.LET), GrammarNode(TokenType.VARIABLE, 0), GrammarNode(TokenType.EQUAL, OperatorType.EQUAL), GrammarNode(GrammarNodeType.EXPRESSION, 0)]
     print_grammar = [GrammarNode(TokenType.COMMAND, CommandType.PRINT), GrammarNode(GrammarNodeType.EXPRESSION, 0)]
+    calc_grammar = [GrammarNode(TokenType.COMMAND, CommandType.CALC), GrammarNode(GrammarNodeType.EXPRESSION, 0)]
     grammar_book[grammar_rules.LET] = let_grammar
     grammar_book[grammar_rules.PRINT] = print_grammar
+    grammar_book[grammar_rules.CALC] = calc_grammar
 
 
-# Create a ExprTree class that contains a list of nodes and a method to add a node to the list of nodes
 
-class ExprTree:
-    def __init__(self):
-        self.nodes = []
+class ASTNode(object):
+    pass
 
-    def add_node(self, node):
-        self.nodes.append(node)
+
+class BinOp(ASTNode):
+    def __init__(self, left, op, right):
+        self.left = left
+        self.op = op
+        self.right = right
 
     def __str__(self):
-        s = ""
-        for node in self.nodes:
-            s = s + str(node) + " "
-        return s
+        return f"({self.left} {self.op} {self.right})"
+    
+class UnOp(ASTNode):
+    def __init__(self, op, expr):
+        self.op = op
+        self.expr = expr
+        self.token = op
 
-    def __repr__(self):
-        s = ""
-        for node in self.nodes:
-            s = s + str(node) + " "
-        return s
+    def __str__(self):
+        return f"{self.op} {self.right}"
+    
+
+class Num(ASTNode):
+    def __init__(self, value):
+        self.value = float(value)
+
+    def __str__(self):
+        return f"{self.value}"
+    
+
+class ExprParser(object):
+    def __init__(self, tokens):
+        self.tokens = tokens
+        self.index = 0
+
+    def error(self):
+        raise Exception('Invalid syntax')
+
+    def eat(self, token_type):
+        if self.current_token().token_type == token_type:
+            self.index += 1
+        else:
+            self.error()
+
+    def factor(self):
+        token = self.current_token()
+        if token.token_type == TokenType.PLUS:
+            self.eat(TokenType.PLUS)
+            node = UnOp(token, self.factor())
+            return node
+        elif token.token_type == TokenType.MINUS:
+            self.eat(TokenType.MINUS)
+            node = UnOp(token, self.factor())
+            return node
+        elif token.token_type == TokenType.NUMBER:
+            self.eat(TokenType.NUMBER)
+            return Num(token.value)
+        elif token.token_type == TokenType.OPEN_PARENTHESIS:
+            self.eat(TokenType.OPEN_PARENTHESIS)
+            node = self.parse_expression()
+            self.eat(TokenType.CLOSE_PARENTHESIS)
+            return node
+
+
+    def term(self):
+        node = self.factor()
+        while self.current_token().token_type in (TokenType.TIMES, TokenType.DIVIDE):
+            token = self.current_token()
+            if token.token_type == TokenType.TIMES:
+                self.eat(TokenType.TIMES)
+            elif token.token_type == TokenType.DIVIDE:
+                self.eat(TokenType.DIVIDE)
+            node = BinOp(left=node, op=token, right=self.factor())
+        return node
+
+    def parse_expression(self):
+        node = self.term()
+        while self.current_token().token_type in (TokenType.PLUS, TokenType.MINUS):
+            token = self.current_token()
+            if token.token_type == TokenType.PLUS:
+                self.eat(TokenType.PLUS)
+            elif token.token_type == TokenType.MINUS:
+                self.eat(TokenType.MINUS)
+            node = BinOp(left=node, op=token, right=self.term())
+        return node
+
+    def parse(self):
+        return self.parse_expression()
+
+    def current_token(self):
+        if self.index >= len(self.tokens):
+            return Token(TokenType.EOF, 0, "") 
+        return self.tokens[self.index]
+
+
 
 class ParseResult:
     def __init__(self, result, remaining_tokens):
@@ -79,7 +159,7 @@ class ParseResult:
 
 def parse_expression(tokens):
     result=[]
-    expression_tokens=[TokenType.NUMBER, TokenType.OPERATOR]
+    expression_tokens=[TokenType.NUMBER, TokenType.PLUS, TokenType.MINUS, TokenType.TIMES, TokenType.DIVIDE, TokenType.OPEN_PARENTHESIS, TokenType.CLOSE_PARENTHESIS]
     index=0
     for token in tokens:
         if token.token_type in expression_tokens:
@@ -91,7 +171,9 @@ def parse_expression(tokens):
         return ParseResult(None, tokens)
     else:
         expr_token=Token(TokenType.EXPRESSION, None, "")
-        expr_token.expression=result
+        expr_tree=ExprParser(result).parse()
+        expr_token.tokens=result
+        expr_token.expression=expr_tree
     return ParseResult(expr_token, tokens[index:])
 
 
