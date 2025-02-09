@@ -3,6 +3,23 @@ from tokenizer import split_string, string_separators, lexerize, command_types
 from parser import parse_tokens, ParseResult
 from interpreter import Interpreter, interpreter_commands
 
+
+class BasicMachine(object):
+    def __init__(self):
+        self.variables = {}
+        self.program = Program()
+
+    def list(self):
+        self.program.print_code()
+
+    def run(self):
+        self.program.instructions.sort(key=lambda x: x.line_number)
+        for code_line in self.program.instructions:
+            print ("running... ", f"{code_line}")
+            program_command=interpreter_commands[code_line.tokens[0].value](code_line.tokens[1:])     
+            program_command.call()
+
+
 class Instruction:
     def __init__(self, line_number, tokens):
         self.line_number = line_number
@@ -41,28 +58,28 @@ class Program:
         # sort the list of code lines by line number
         self.instructions.sort(key=lambda x: x.line_number)
         # print the line number and code for each code line in the list of code lines
-        for code_line in self.instructionsnstructions:
+        for code_line in self.instructions:
             print (f"{code_line}")
 
 
 # create a function that loops capturing an input string until the user types "exit" and if the first word is a number split the string into a line number and code and add it to the code block.
 
 def loop_input():
-    program = Program()
+    cpu = BasicMachine()
     while True:
         code = input("> ")
         upperCode = code.upper()
         if upperCode == "EXIT":
             break
         elif upperCode == "LIST":
-            program.print_code()
+            cpu.list()
         elif upperCode == "RUN":
-            print("Running the program")
+            cpu.run()
         elif upperCode == "CLEAR":
-            program.code_lines = []
+            cpu.program.code_lines = []
             print("Program cleared - all lines removed")
         elif upperCode.isdigit():
-            program.remove_code_line(int(upperCode))
+            cpu.program.remove_code_line(int(upperCode))
         else:
             words = split_string(code, string_separators())
             if words[0].isdigit():
@@ -72,7 +89,7 @@ def loop_input():
                     result=parse_tokens(token_list)
                     if result.tree:
                         code_line = Instruction(line_number, result.tree)
-                        program.add_code_line(code_line)
+                        cpu.program.add_code_line(code_line)
                     else:
                         print("Error: Invalid syntax")
             elif words[0].upper() in command_types:
